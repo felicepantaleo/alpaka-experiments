@@ -17,7 +17,7 @@ cd boost_1_70_0/
 
 cd $PROJECT_DIR
 
-git clone git@github.com:psychocoderHPC/cupla.git
+git clone https://github.com/psychocoderHPC/cupla.git
 cd cupla
 git merge origin/topic-standaloneHeader
 cd example/CUDASamples/matrixMul/src
