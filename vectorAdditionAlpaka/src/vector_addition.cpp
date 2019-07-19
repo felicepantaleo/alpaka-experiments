@@ -104,11 +104,13 @@ int main(int argc, char *argv[] ) {
   BufHost a_h = alpaka::mem::buf::alloc<Data, Size>(devHost, extent);
   BufHost b_h = alpaka::mem::buf::alloc<Data, Size>(devHost, extent);
   BufHost c_h = alpaka::mem::buf::alloc<Data, Size>(devHost, extent);
+
+  const auto a_h_native = alpaka::mem::view::getPtrNative(a_h);
   
   for ( Size i = 0; i < numElements; i++ ) {
-    a_h[i] = i;
-    b_h[i] = i;
-    c_h[i] = 0;
+    alpaka::mem::view::getPtrNative(a_h)[i] = i;
+    alpaka::mem::view::getPtrNative(b_h)[i] = i;
+    alpaka::mem::view::getPtrNative(c_h)[i] = 0;
   }
   
   /* Device pointers for the three vectors a, b, c */
@@ -129,7 +131,7 @@ int main(int argc, char *argv[] ) {
   start = std::chrono::system_clock::now();
 
   /* Create kernel execution task */
-  auto const taskKernel(alpaka::kernel::createTaskKernel<Acc>(
+  auto const taskKernel(alpaka::exec::create<Acc>(
    workdiv,
    kernel,
    alpaka::mem::view::getPtrNative(a_acc),
@@ -138,7 +140,7 @@ int main(int argc, char *argv[] ) {
    numElements));
 
   /* Enqueue the kernel execution task */
-  alpaka::queue::enqueue(stream, taskKernel);
+  alpaka::stream::enqueue(stream, taskKernel);
 
   
   /* Copy back the result */
@@ -148,7 +150,7 @@ int main(int argc, char *argv[] ) {
   std::chrono::duration<double> elapsed_seconds = end-start;
   
   for ( int i = 0; i < vec_size_h; i++ ) {
-    cout << a_h[i] << " + " << b_h[i] << " = " << c_h[i] << endl;
+    cout << alpaka::mem::view::getPtrNative(a_h)[i] << " + " << alpaka::mem::view::getPtrNative(b_h)[i] << " = " << alpaka::mem::view::getPtrNative(c_h)[i] << endl;
   }
 
   cout << "Kernel duration: " << elapsed_seconds.count() << " s " << endl;
